@@ -8,4 +8,4 @@ Modelling of Indian Railways network for route Optimisation
  
  The objective of the project is to model using network applications and then analyse the network using various evaluation measures e.g. Degree centrality, edge betweenness, betweenness centrality etc and draw inferences from the measures. Using the measures various optmisation in the routes and nodes can be proposed for the efficient working of Indian Railways.
  
-The code is to create a preliminary network in python and visualise using plotly. Using networkx package various techniques have been applied to evaluate the network constraints
+The code is to create a preliminary network in python and visualise using plotly and Gephi. Using networkx package various techniques have been applied to evaluate the network constraints. The visualised network is shown in the upload section 
