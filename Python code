@@ -1,0 +1,285 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb  1 01:58:46 2017
+
+@author: abc
+"""
+
+import networkx as nx
+import networkx
+import pandas as pd
+import matplotlib.pyplot as plt
+import collections
+import pylab as pl
+import numpy as np
+data=pd.read_csv("C:\\Users\\abc\\Desktop\\isl_wise_train_detail_03082015_v1.csv")
+trainno=data.iloc[:,0]
+stncode=data.iloc[0:69006,3]
+trainname=data.iloc[0:69006,1]
+g=networkx.MultiDiGraph()
+stn=[]
+for row in stncode:
+    if row not in stn:
+        stn.append(row)
+
+for s in stn:
+    g.add_node(s)
+    
+for s in stn: 
+    for i in range(len(stncode)):
+    
+        if((s==stncode[i]) and (trainno[i]==trainno[i+1])):
+        #g.add_node(stncode[i])
+        #g.add_node(stncode[i+1])
+            g.add_edge(stncode[i],stncode[i+1])
+        if(i==len(stncode)-1):
+            break
+
+o=[]
+stncode1=data.iloc[0:600,3]
+for i in range(len(stncode)):
+    if(trainno[i]==trainno[i+1]):
+       temp=(stncode[i],stncode[i+1]) 
+       o.append(temp)
+u=networkx.Graph()
+
+edge_u=[]  
+edge_v=[]    
+for i in range(len(o)):
+    edge_u.append(o[i][0])
+    edge_v.append(o[i][1]) 
+
+n=len(set(edge_u))
+d=len(set(edge_u))   
+for s in set(edge_u):
+    u.add_node(s)
+for p in range(len(o)):
+    u.add_edge(o[p][0],o[p][1])
+  
+pl.hist(nx.degree_histogram(u))
+bb=nx.degree(u)
+yy=max(bb.keys(), key=lambda k: bb[k])
+key, value = max(bb.items(), key=lambda x:x[1])
+ss=sorted(bb.items(), key=lambda x: x[1],reverse=True)
+
+
+
+nx.density(u)
+networkx.draw(u) 
+nx.networkx_draw(g)         
+ba_c = nx.degree_centrality(g)
+ba_c3 = {k:int(v*(len(g)-1)) for k,v in ba_c.items()}
+dictlist=[]
+dictlist1=[]
+dictlist2=[]
+dictlist3=[]
+temp=[]
+p=g.degree()
+for value in ba_c3.items():
+    temp = [value]
+    dictlist.append(temp)
+for x in range(len(dictlist)):
+    temp=dictlist[x][0][1]
+    dictlist1.append(temp)
+ba_c2 = dict(collections.Counter(ba_c.values()))
+pl.hist(dictlist1)
+pl.hist(ba_c2)
+for value in ba_c2.items():
+    temp = [value]
+    dictlist2.append(temp)
+for x in range(len(dictlist2)):
+    temp=dictlist2[x][0][1]
+    dictlist3.append(temp)
+pl.hist(dictlist3)
+pl.gca().set_xscale("log")
+pl.show()
+# To convert normalized degrees to raw degrees
+
+ba_x,ba_y = log_binning(ba_c2,50)
+
+plt.xscale('log')
+plt.yscale('log')
+plt.scatter(ba_x,ba_y,c='r',marker='s',s=50)
+plt.scatter(ba_c2.keys(),ba_c2.values(),c='b',marker='x')
+plt.xlim((1e-4,1e-1))
+plt.ylim((.9,1e4))
+plt.xlabel('Connections (normalized)')
+plt.ylabel('Frequency')
+plt.show()    
+degree_sequence=sorted(nx.degree(g).values(),reverse=True) # degree sequence
+#print "Degree sequence", degree_sequence
+dmax=max(degree_sequence)
+plt.loglog(degree_sequence,'b-',marker='o')
+plt.title("Degree rank plot")
+plt.ylabel("degree")
+plt.xlabel("rank")
+
+# draw graph in inset
+#plt.axes([0.45,0.45,0.45,0.45])
+#Gcc=sorted(nx.connected_component_subgraphs(g), key = len, reverse=True)[0]
+#pos=nx.spring_layout(Gcc)
+#plt.axis('off')
+#nx.draw_networkx_nodes(Gcc,pos,node_size=20)
+#nx.draw_networkx_edges(Gcc,pos,alpha=0.4)
+
+#plt.savefig("degree_histogram.png")
+#plt.show()
+
+pos1=nx.spring_layout(u)
+
+import plotly.plotly as py
+from plotly.graph_objs import *
+import plotly.offline as offline
+from plotly import __version__
+from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+init_notebook_mode(connected=True)
+print( __version__ )# requires version >= 1.9.0)
+pos=nx.get_node_attributes(u,'pos')
+pos=pos1
+iplot([{"x": [1, 2, 3], "y": [3, 1, 6]}])
+dmin=1
+ncenter=0
+for n in pos:
+    x,y=pos[n]
+    d=(x-0.5)**2+(y-0.5)**2
+    if d<dmin:
+        ncenter=n
+        dmin=d
+p=nx.single_source_shortest_path_length(g,ncenter)
+
+
+def scatter_nodes(pos, labels=None, color=None, size=4, opacity=1):
+    # pos is the dict of node positions
+    # labels is a list  of labels of len(pos), to be displayed when hovering the mouse over the nodes
+    # color is the color for nodes. When it is set as None the Plotly default color is used
+    # size is the size of the dots representing the nodes
+    #opacity is a value between [0,1] defining the node color opacity
+    L=len(pos)
+    trace = Scatter(x=[], y=[],  mode='markers', marker=Marker(size=[]))
+    for key, value in pos.items():
+        trace['x'].append(value[0])
+        trace['y'].append(value[1])
+    attrib=dict(name='', text=labels , hoverinfo='text', opacity=opacity) # a dict of Plotly node attributes
+    trace=dict(trace, **attrib)# concatenate the dict trace and attrib
+    trace['marker']['size']=size
+    return trace
+def scatter_edges(u, pos, line_color=None, line_width=1):
+    trace = Scatter(x=[], y=[], mode='lines')
+    for edge in u.edges():
+        trace['x'] += [pos[edge[0]][0],pos[edge[1]][0], None]
+        trace['y'] += [pos[edge[0]][1],pos[edge[1]][1], None]  
+        trace['hoverinfo']='none'
+        trace['line']['width']=line_width
+        if line_color is not None: # when it is None a default Plotly color is used
+            trace['line']['color']=line_color
+    return trace
+    
+labels=[str(k)  for k in range(len(pos))] # labels are  set as being the nodes indices in the list of nodes
+trace1=scatter_edges(u, pos)
+trace2=scatter_nodes(pos, labels=labels)
+
+width=5500
+height=5500
+axis=dict(showline=False, # hide axis line, grid, ticklabels and  title
+          zeroline=False,
+          showgrid=False,
+          showticklabels=False,
+          title='' 
+          )
+layout=Layout(title= 'Fruchterman Reingold  layout',  #
+    font= Font(),
+    showlegend=False,
+    autosize=False,
+    width=width,
+    height=height,
+    xaxis=XAxis(axis),
+    yaxis=YAxis(axis),
+    margin=Margin(
+        l=40,
+        r=40,
+        b=85,
+        t=100,
+        pad=0,
+       
+    ),
+    hovermode='closest',
+    plot_bgcolor='#EFECEA', #set background color            
+    )
+
+
+data=Data([trace1, trace2])
+
+fig = Figure(data=data, layout=layout)
+plot(fig, filename='Network')
+
+#Create Edges
+#Add edges as disconnected lines in a single trace and nodes as a scatter trace
+edge_trace = Scatter(
+    x=[], 
+    y=[], 
+    line=Line(width=0.5,color='#888'),
+    hoverinfo='none',
+    mode='lines')
+
+for edge in g.edges():
+    x0, y0 = g.node[edge[0]]['pos']
+    x1, y1 = g.node[edge[1]]['pos']
+    edge_trace['x'] += [x0, x1, None]
+    edge_trace['y'] += [y0, y1, None]
+
+node_trace = Scatter(
+    x=[], 
+    y=[], 
+    text=[],
+    mode='markers', 
+    hoverinfo='text',
+    marker=Marker(
+        showscale=True,
+        # colorscale options
+        # 'Greys' | 'Greens' | 'Bluered' | 'Hot' | 'Picnic' | 'Portland' |
+        # Jet' | 'RdBu' | 'Blackbody' | 'Earth' | 'Electric' | 'YIOrRd' | 'YIGnBu'
+        colorscale='YIGnBu',
+        reversescale=True,
+        color=[], 
+        size=10,         
+        colorbar=dict(
+            thickness=15,
+            title='Node Connections',
+            xanchor='left',
+            titleside='right'
+        ),
+        line=dict(width=2)))
+
+for node in g.nodes():
+    x, y = g.node[node]['pos']
+    node_trace['x'].append(x)
+    node_trace['y'].append(y)
+for node, adjacencies in enumerate(g.adjacency_list()):
+    node_trace['marker']['color'].append(len(adjacencies))
+    node_info = '# of connections: '+str(len(adjacencies))
+    node_trace['text'].append(node_info)
+
+    
+plot(Figure(data=Data([edge_trace, node_trace]),
+             layout=Layout(
+                title='<br>Network graph made with Python',
+                titlefont=dict(size=16),
+                showlegend=False,
+                annotations=[ dict(
+                    text="Python code: <a href='https://plot.ly/ipython-notebooks/network-graphs/'> https://plot.ly/ipython-notebooks/network-graphs/</a>",
+                    showarrow=False,
+                    xref="paper", yref="paper",
+                    x=0.005, y=-0.002 ) ],
+                hovermode='closest',
+                margin=dict(b=20,l=5,r=5,t=40),
+                xaxis=XAxis(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=YAxis(showgrid=False, zeroline=False, showticklabels=False))))
+
+plot(fig, filename='C:\\Users\\abc\\Desktop\\networkx.html')
+from plotly.graph_objs import *
+import numpy as np
+
+x = np.random.randn(2000)
+y = np.random.randn(2000)
+iplot([Histogram2dContour(x=x, y=y, contours=Contours(coloring='heatmap')),
+       Scatter(x=x, y=y, mode='markers', marker=Marker(color='white', size=3, opacity=0.3))], show_link=False)
