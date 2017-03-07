@@ -11,12 +11,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import collections
 import pylab as pl
+import pylab
+from scipy import *
+import scipy.optimize as optimize
+import powerlaw
 import numpy as np
 data=pd.read_csv("C:\\Users\\abc\\Desktop\\isl_wise_train_detail_03082015_v1.csv")
 trainno=data.iloc[:,0]
 stncode=data.iloc[0:69006,3]
 trainname=data.iloc[0:69006,1]
-g=networkx.MultiDiGraph()
+g=networkx.MultiGraph()
 stn=[]
 for row in stncode:
     if row not in stn:
@@ -36,12 +40,14 @@ for s in stn:
             break
 
 o=[]
-stncode1=data.iloc[0:600,3]
+stncode=data.iloc[0:69006,3]
 for i in range(len(stncode)):
     if(trainno[i]==trainno[i+1]):
+       print(trainno[i],trainno[i+1])
        temp=(stncode[i],stncode[i+1]) 
        o.append(temp)
 u=networkx.Graph()
+
 
 edge_u=[]  
 edge_v=[]    
@@ -55,7 +61,350 @@ for s in set(edge_u):
     u.add_node(s)
 for p in range(len(o)):
     u.add_edge(o[p][0],o[p][1])
+    
+import numpy as np
+v=u
+bb=nx.degree(u)    
+ss=sorted(bb.items(), key=lambda x: x[1],reverse=True)    
+ccd2sort=sorted(ccd2.items(), key=lambda x: x[1],reverse=True)    
+
+kk=[]
+v=u 
+
+for su in range(len(tt)):
+    v.remove_node(tt[su])
+    
+    
+    graphi = list(nx.connected_component_subgraphs(v))
+    j=len(graphi)
+    j1=len(graphi[0])
+    #j2=len(graphi[1])
+    kk.append((su,j,j1))
+    print(su,j)
+ccdso5=[]    
+for su in range(len(tt2)):
+    v.remove_node(tt2[su])
+    
+    
+    graphi = list(nx.connected_component_subgraphs(v))
+    j=len(graphi)
+    j1=len(graphi[0])
+    #j2=len(graphi[1])
+    ccdso5.append((su,j,j1))
+    print(su,j)
+    
+tt=list(np.random.choice(z,len(z),p=w2,replace=False))
+tt2=list(np.random.choice(ccdso,len(ccdso),p=ccdso2,replace=False))
+    
+    #j=graphi
+
+kk1=[]
+kk2=[]
+kk3=[]
+for n in range(len(kk)):
+    cc=(kk[n][0]+1)/(len(kks)-1)
+    kk1.append(cc)
+    kk2.append(kk[n][1])    #jj.append(j)
+    kk3.append(kk[n][2]/4344)
+    
+z=[]
+w1=[]
+for n in range(len(ss)):
+    z.append(ss[n][0])
+    w1.append(ss[n][1]/4343)
+ccdso=[]
+ccdso1=[]    
+for n in range(len(ccd2sort)):
+    ccdso.append(ccd2sort[n][0])
+    ccdso1.append(ccd2sort[n][1])
+ccdso2=[]
+for n in range(len(ccdso1)-1):
+    tr=ccdso1[n]/sum(ccdso1)
+    ccdso2.append(tr)
+w2=[]
+ccdso3=[]
+for n in range(len(w1)-1):
+    tr=w1[n]/sum(w1)
+    w2.append(tr)
+w2.append(1-sum(w2))
+ccdso2.append(1-sum(ccdso2))
+v=u    
+import random
+
+kks=[]
+for h in range(len(ss)):
+    v.remove_node(random.choice(v.nodes()))
+    graphi = list(nx.connected_component_subgraphs(v))
+    j=len(graphi)
+    
+    try:
+        j1=len(graphi[0])
+        kks.append((h,j,j1))
+        print(h,j)
+    except:
+        pass
+kks1=[]
+kks2=[]
+kks3=[]
+for n in range(len(kks)):
+    cc=(kks[n][0]+1)/(len(kks)-1)
+    kks1.append(cc)
+    kks2.append(kks[n][1])
+    kks3.append(kks[n][2]/4344)
+plt.figure()
+plt.grid(True)
+plt.xlabel('fraction')
+plt.ylabel('Number of components')
+plt.title('Resilience Curve based on Degree Centrality')
+plt.plot(kks1,kks2,label='Random')
+plt.plot(kk1,kk2,color='r',label='Targeted')
+plt.legend(['Random','Targeted '])
+#plt.show()
+plt.savefig('./ResilienceCurveNoofComponentsDegreeCentralityversion2.pdf')
+
+plt.figure()
+plt.grid(True)
+plt.xlabel('fraction')
+plt.ylabel('Fraction of nodes in major connected component')
+plt.title('Resilience Curves with respect to Degree Centrality')
+plt.plot(kks1,kks3,label='Random')
+plt.plot(kk1,kk3,color='r',label='Targeted')
+plt.legend(['Random','Targeted '])
+#plt.show()
+plt.savefig('./ResilienceCurveNoofnodesDegreeCentralityversion2.pdf')
+
+
+
+plt.figure()
+plt.grid(True)
+plt.legend(['Random','Targeted'])
+plt.xlabel('fraction')
+plt.ylabel('Number of nodes in major connected components')
+#plt.title('Log Log Degree Distribution')
+plt.plot(kks1,kks3,'ro-')
+plt.plot(kk1,kk3)
+plt.show()
+
+
+
+plt.xlim([1,2*25])
+plt.loglog(in_values,in_hist,'ro-')
+plt.savefig('./log_degree_distribution.pdf')
+
+#plt.plot(in_values/len(ssnod),in_hist,'ro-')
+
+ccd=nx.closeness_centrality(u, normalized=True)  
+ccd2=nx.eigenvector_centrality(u, max_iter=100)
+d=[]
+ed=nx.edge_betweenness_centrality(u, normalized=True)
+nod=nx.betweenness_centrality(u, normalized=True)
+ssed=sorted(ed.items(), key=lambda x: x[1],reverse=True)
+ssnod=sorted(nod.items(), key=lambda x: x[1],reverse=True)
+ssnod2=sorted(ccd2.items(), key=lambda x: x[1],reverse=True)
+
+f4=list(bb.values())
+f5=list(nod.values())
+f6=list(ccd.values())
+f7=list(nod.values())
+f8=list(ccd2.values())
+f9=list(nod.values())
+ll=[]
+ll1=[]
+ll2=[]
+for hu in range(len(f4)):
+    ll.append((f4[hu],f5[hu]))
+for hu in range(len(f4)):
+    ll1.append((f4[hu],f6[hu]))    
+for hu in range(len(f4)):
+    ll2.append((f4[hu],f8[hu]))
+sos=sorted(ll, key = lambda x: int(x[0]))
+sos1=sorted(ll1, key = lambda x: int(x[0]))
+sos2=sorted(ll2, key = lambda x: int(x[0]))
+
+lll1=[]
+lll2=[]
+lll3=[]
+lll4=[]
+lll5=[]
+lll6=[]
+for hu in range(len(sos)):
+    lll1.append(sos[hu][0])
+    lll2.append(sos[hu][1])
+for hu in range(len(sos1)):
+    lll3.append(sos1[hu][0])
+    lll4.append(sos1[hu][1])
+for hu in range(len(sos2)):
+    lll5.append(sos2[hu][0])
+    lll6.append(sos2[hu][1])
+
+plt.figure()
+plt.grid(True)
+plt.xlabel('Degree')
+plt.ylabel('Centrality')
+plt.title('Degree-Centrality Correlation Curves')
+plt.plot(lll1,lll2,color='b')
+plt.plot(lll3,lll4,color='r')
+plt.plot(lll5,lll2,color='g')
+#plt.plot(kkse1,kkse2,label='Random')
+plt.legend(['Betweeness ','Closeness','EigenVector'])
+plt.show()
+jj=[]
+kk=[]
+v=u
+
+kked=[]
+for h in range(len(ed)):
+    m=random.choice(v.edges())
+    v.remove_edge(m[0],m[1])
+    graphi = list(nx.connected_component_subgraphs(v))
+    j=len(graphi)
+    j1=len(graphi[0])
+    try:
+        
+        kked.append((h,j,j1))
+        print(h,j)
+    except:
+        pass
+
+kksed=[]
+for h in range(len(tt1)):
+    #uu=random.choice(z4[1:30])
+    v.remove_edge(z4[tt1[h]][0],z4[tt1[h]][1])
+    #z4.remove(uu)
+    graphi = list(nx.connected_component_subgraphs(v))
+    j=len(graphi)
+    j1=len(graphi[0])
+    kksed.append((h,j,j1))
+    print(h,j)
+    
+
+z4=[]
+r2=[]
+for n in range(9468):
+         z4.append(ssed[n][0])
+         r2.append(ssed[n][1])
+r3=[]
+for n in range(len(r2)-1):
+    tr=r2[n]/sum(r2)
+    r3.append(tr)
+r3.append(1-sum(r3))
+tt1=list(np.random.choice(np.arange(9468),len(r3),p=r3,replace=False))
+
+kksd1=[]
+kksd2=[]
+kksd3=[]
+for n in range(len(kksed)):
+    cc=(kksed[n][0]+1)/(len(kksed)-1)
+    kksd1.append(cc)
+    kksd2.append(kksed[n][1])
+    kksd3.append(kksed[n][2]/4344)
+    
+kkse1=[]
+kkse2=[]
+kkse3=[]
+for n in range(len(kked)):
+    cc=(kked[n][0]+1)/(len(kksed)-1)
+    kkse1.append(cc)
+    kkse2.append(kked[n][1])
+    kkse3.append(kked[n][2]/4344)
+plt.figure()
+plt.grid(True)
+plt.xlabel('fraction')
+plt.ylabel('Number of components')
+plt.title('Resilience Curve based on Edge betweenness')
+plt.plot(kksd1,kksd2,color='r',label='Targeted')
+plt.plot(kkse1,kkse2,label='Random')
+plt.legend(['Targeted ','Random'])
+plt.savefig('./ResilienceCurveNoofComponentsEdgebetweenenssversion2.pdf')
+
+plt.show()
+
+plt.figure()
+plt.grid(True)
+plt.xlabel('fraction')
+plt.ylabel('Fraction of nodes in major connected components')
+plt.title('Resilience Curves with respect to edge betweeness')
+plt.plot(kksd1,kksd3,color='r',label='Targeted')
+plt.plot(kkse1,kkse3,label='Random')
+plt.legend(['Targeted','Random'])
+
+#plt.show()       
+plt.savefig('./ResilienceCurveEdgebetweenenssversion2.pdf')
   
+         
+         
+         
+         
+         
+bb=nx.degree(u)
+in_values = sorted(set(bb.values()))
+
+fff=bb.values()
+in_hist = [list(fff).count(x) for x in in_values]
+in_hist1 = []
+for x in in_hist:
+    in_hist1.append(x/len(bb))           
+plt.figure() # you need to first do ‘import pylab as plt’
+plt.grid(True)
+ # in-degree
+plt.legend(['degree'])
+plt.xlabel('Degree')
+plt.ylabel('Fraction of nodes')
+plt.title('Log Log Degree Distribution')
+plt.xlim([1,2*25])
+plt.loglog(in_values,in_hist1,'ro-')
+#plt.loglog(in_values,gggg)
+fit.power_law.plot_pdf( ax=plt.plot(),color= 'b',label='fit pdf')
+plt.savefig('./log_degree_distribution.pdf')
+#plt.plot(in_values, powerlaw.pdf(in_values, -0.647),'r-', label='powerlaw pdf')
+plt.plot(in_values,in_hist,'ro-')
+plt.savefig('./cam_net_degree_distribution.pdf')
+plt.close()
+from scipy.stats import powerlaw
+
+rv = powerlaw(-0.647313)
+n = len(ssnod)  # Number of nodes
+#m = 4  # Number of initial links
+seed = 100
+G = nx.barabasi_albert_graph(n, seed)
+
+data=[]
+for xx in range(35):
+    da=[in_values[xx],in_hist1[xx]]
+    data.append(da)
+fit = powerlaw.Fit(in_hist1)
+fit.power_law.alpha 
+gggg=fit.power_law.pdf()
+
+x = in_values
+y = in_hist
+f_out = open('in_values_xy.txt','w')
+print >> f_out, str((x,y))
+f_out.close()
+
+
+       
+
+    
+
+    
+    
+    
+kki=[]
+jji=[]
+for h in range(len(ss)):
+    u.remove_node(ss[h][0])
+    graphi = list(nx.connected_component_subgraphs(u))
+    j=len(graphi)
+    j1=len(graphi[0])
+    kki.append((j,j1))
+    #j=graphi
+    #jji.append(j)
+    
+    #diameter=nx.diameter(graphi[0])
+    #print(diameter)
+    #d.append(diameter)
+    
 pl.hist(nx.degree_histogram(u))
 bb=nx.degree(u)
 yy=max(bb.keys(), key=lambda k: bb[k])
@@ -67,14 +416,14 @@ ss=sorted(bb.items(), key=lambda x: x[1],reverse=True)
 nx.density(u)
 networkx.draw(u) 
 nx.networkx_draw(g)         
-ba_c = nx.degree_centrality(g)
+ba_c = nx.degree_centrality(u)
 ba_c3 = {k:int(v*(len(g)-1)) for k,v in ba_c.items()}
 dictlist=[]
 dictlist1=[]
 dictlist2=[]
 dictlist3=[]
 temp=[]
-p=g.degree()
+p=u.degree()
 for value in ba_c3.items():
     temp = [value]
     dictlist.append(temp)
@@ -211,6 +560,16 @@ data=Data([trace1, trace2])
 
 fig = Figure(data=data, layout=layout)
 plot(fig, filename='Network')
+
+
+
+
+
+
+
+
+
+
 
 #Create Edges
 #Add edges as disconnected lines in a single trace and nodes as a scatter trace
